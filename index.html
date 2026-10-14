@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#151112">
+  <meta name="description" content="Одно маленькое приглашение на особенный вечер.">
+  <title>Милое приключение ❤️</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
+    :root{--bg:#151112;--panel:rgba(34,25,27,.72);--cream:#f5eadd;--muted:#c6b5b0;--wine:#9c354c;--wine2:#c35a70;--gold:#d7b58b;--line:rgba(245,234,221,.16);--safe-bottom:env(safe-area-inset-bottom, 0px)}
+    *{box-sizing:border-box}
+    html,body{margin:0;min-height:100%;background:var(--bg);color:var(--cream);font-family:'DM Sans',system-ui,-apple-system,sans-serif}
+    body{min-height:100svh;overflow-x:hidden;background:radial-gradient(ellipse at 18% 16%,rgba(123,43,60,.22),transparent 38%),radial-gradient(ellipse at 88% 84%,rgba(160,117,79,.13),transparent 36%),#151112}
+    button,input,textarea{font:inherit}
+    button{cursor:pointer}
+    .ambient{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0}
+    .orb{position:absolute;width:36vw;height:36vw;min-width:180px;min-height:180px;border-radius:50%;filter:blur(70px);opacity:.12;animation:drift 14s ease-in-out infinite alternate}
+    .orb.one{background:#a13d55;top:-10%;left:-10%}.orb.two{background:#c39a6c;right:-15%;bottom:-10%;animation-delay:-5s}
+    .grain{position:absolute;inset:0;opacity:.055;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.4'/%3E%3C/svg%3E")}
+    .sparkles{position:absolute;inset:0}
+    .spark{position:absolute;width:3px;height:3px;border-radius:50%;background:#f7dfbd;opacity:0;animation:twinkle 5s infinite ease-in-out}
+    .app{position:relative;z-index:1;min-height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 18px calc(20px + var(--safe-bottom))}
+    .topline{width:min(100%,560px);display:flex;align-items:center;justify-content:space-between;margin:0 auto 18px;color:var(--muted);font-size:10px;letter-spacing:.24em;text-transform:uppercase}
+    .seal{display:flex;align-items:center;gap:8px}.seal-mark{color:var(--gold);font-size:14px}
+    .step-label{letter-spacing:.16em}
+    .stage{width:min(100%,560px);position:relative;min-height:min(660px,calc(100svh - 115px));display:flex;align-items:center;justify-content:center}
+    .screen{width:100%;display:none;opacity:0;transform:translateY(14px) scale(.99);padding:clamp(24px,6vw,48px) clamp(20px,6vw,46px);border:1px solid var(--line);border-radius:28px;background:linear-gradient(145deg,rgba(48,34,37,.78),rgba(27,21,22,.78));box-shadow:0 28px 90px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.035);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);text-align:center;position:relative;overflow:hidden}
+    .screen::before{content:"";position:absolute;inset:10px;border:1px solid rgba(215,181,139,.08);border-radius:21px;pointer-events:none}
+    .screen.active{display:block;animation:screenIn .62s cubic-bezier(.2,.75,.25,1) forwards}
+    .screen.leaving{display:block;animation:screenOut .2s ease forwards;pointer-events:none}
+    .eyebrow{font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);margin:0 0 22px}
+    h1,h2{font-family:'Playfair Display',Georgia,serif;font-weight:500;letter-spacing:-.035em;line-height:1.14;margin:0 auto;color:#fff3e6}
+    h1{font-size:clamp(34px,7.7vw,56px);max-width:480px}
+    h2{font-size:clamp(29px,6.5vw,44px)}
+    .copy{font-size:clamp(14px,3.8vw,17px);line-height:1.75;color:#d6c6bf;max-width:420px;margin:20px auto 0}
+    .ornament{display:flex;align-items:center;justify-content:center;gap:12px;margin:26px auto;color:var(--gold);font-size:12px}
+    .ornament::before,.ornament::after{content:"";height:1px;width:44px;background:linear-gradient(90deg,transparent,rgba(215,181,139,.65))}
+    .ornament::after{transform:rotate(180deg)}
+    .actions{display:flex;flex-direction:column;gap:11px;align-items:stretch;margin:30px auto 0;max-width:360px;position:relative;z-index:1}
+    .btn{min-height:52px;border-radius:999px;padding:14px 20px;border:1px solid rgba(215,181,139,.45);color:var(--cream);background:rgba(255,255,255,.035);transition:transform .22s ease,background .22s ease,border-color .22s ease,box-shadow .22s ease;font-size:14px;font-weight:600;letter-spacing:.01em}
+    .btn:hover{transform:translateY(-2px);border-color:var(--gold);background:rgba(255,255,255,.07)}
+    .btn:active{transform:scale(.985)}
+    .btn:focus-visible,.choice:focus-visible,textarea:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+    .btn.primary{border:1px solid #c16a79;background:linear-gradient(135deg,#a83c55,#76273c);box-shadow:0 9px 28px rgba(126,35,58,.25);color:#fff7f0}
+    .btn.primary:hover{background:linear-gradient(135deg,#bd4d66,#873047);box-shadow:0 12px 34px rgba(126,35,58,.35)}
+    .btn.quiet{border-color:transparent;background:transparent;color:#b9a7a2;font-weight:500}
+    .no-message{display:none;color:#d8a0a8;font-family:'Playfair Display',Georgia,serif;font-size:20px;margin-top:18px;animation:fadeUp .45s ease both}
+    .no-message.show{display:block}
+    .date{font-family:'Playfair Display',Georgia,serif;font-size:clamp(35px,8vw,54px);color:var(--gold);letter-spacing:-.04em;line-height:1.12;text-shadow:0 0 35px rgba(215,181,139,.12);white-space:nowrap}
+    .date-sub{font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--muted);margin-top:13px}
+    .field-label{display:block;text-align:left;color:#d9c8bd;font-size:12px;margin:25px 0 9px 3px}
+    textarea{display:block;width:100%;min-height:112px;resize:vertical;background:rgba(8,7,8,.24);border:1px solid rgba(245,234,221,.17);border-radius:16px;color:var(--cream);padding:15px 16px;line-height:1.55;outline:none;transition:border-color .2s,box-shadow .2s}
+    textarea::placeholder{color:#93817e}
+    textarea:focus{border-color:rgba(215,181,139,.65);box-shadow:0 0 0 3px rgba(215,181,139,.08)}
+    .choices{display:flex;flex-wrap:wrap;justify-content:center;gap:9px;margin:18px auto 0}
+    .choice{border:1px solid rgba(245,234,221,.2);border-radius:999px;background:rgba(255,255,255,.025);padding:10px 14px;color:#d7c8c1;font-size:12px;transition:all .2s}
+    .choice.selected{background:rgba(156,53,76,.3);border-color:#c16a79;color:#fff2e9;box-shadow:inset 0 0 0 1px rgba(193,106,121,.15)}
+    .movie-choices{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:24px 0 0}
+    .movie-choice{min-height:105px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;border:1px solid rgba(245,234,221,.16);border-radius:16px;background:rgba(255,255,255,.025);color:#d9c9c2;font-size:12px;line-height:1.4;padding:12px 8px;transition:all .2s}
+    .movie-choice .icon{font-size:22px;filter:saturate(.8)}
+    .movie-choice.selected{border-color:#c16a79;background:rgba(156,53,76,.24);color:#fff3e9;transform:translateY(-2px)}
+    .fineprint{color:#9e8b87;font-size:10px;line-height:1.55;margin:16px auto 0;max-width:330px}
+    .final-heart{font-size:27px;color:#d77c8e;margin:0 auto 18px;animation:heartbeat 2s infinite}
+    .final-title{font-size:clamp(39px,9vw,62px)}
+    .final-copy{font-size:clamp(16px,4vw,19px);line-height:1.8;color:#e3d1c6;margin:22px auto 0;max-width:390px}
+    .final-last{font-family:'Playfair Display',Georgia,serif;font-size:clamp(22px,5.4vw,30px);color:var(--gold);margin:22px auto 0}
+    .progress-wrap{width:min(100%,260px);margin:20px auto 0;display:flex;gap:5px}
+    .progress-dot{height:2px;flex:1;background:rgba(245,234,221,.15);border-radius:4px;transition:background .3s,box-shadow .3s}
+    .progress-dot.done{background:var(--gold);box-shadow:0 0 9px rgba(215,181,139,.25)}
+    .bottom-note{font-size:9px;color:rgba(198,181,176,.55);letter-spacing:.12em;text-align:center;margin-top:16px}
+    .toast{position:fixed;left:50%;bottom:calc(24px + var(--safe-bottom));transform:translate(-50%,20px);opacity:0;pointer-events:none;background:#2c2022;border:1px solid var(--line);color:var(--cream);padding:12px 18px;border-radius:14px;font-size:12px;max-width:calc(100vw - 32px);text-align:center;transition:all .3s;z-index:10}
+    .toast.show{opacity:1;transform:translate(-50%,0)}
+    .send-status{display:none;margin:18px auto 0;font-size:13px;line-height:1.6;color:#e4c9aa}
+    .send-status.show{display:block}
+    .heart-float{position:fixed;z-index:5;pointer-events:none;font-size:18px;animation:floatHeart 1.8s ease-out forwards}
+    .back-btn{position:absolute;top:22px;left:22px;z-index:2;background:transparent;border:0;color:#b8a5a0;font-size:12px;padding:8px 4px}
+    .back-btn:hover{color:var(--cream)}
+    @keyframes screenIn{from{opacity:0;transform:translateY(16px) scale(.99)}to{opacity:1;transform:translateY(0) scale(1)}}
+    @keyframes screenOut{to{opacity:0;transform:translateY(-8px) scale(.99)}}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes twinkle{0%,100%{opacity:0;transform:scale(.7)}50%{opacity:.65;transform:scale(1.3)}}
+    @keyframes drift{to{transform:translate(8vw,5vh) scale(1.2)}}
+    @keyframes heartbeat{0%,100%{transform:scale(1)}10%,24%{transform:scale(1.14)}18%,32%{transform:scale(1)}}
+    @keyframes floatHeart{0%{opacity:0;transform:translateY(0) scale(.7) rotate(0)}15%{opacity:1}100%{opacity:0;transform:translateY(-180px) scale(1.25) rotate(18deg)}}
+    @media(min-width:700px){.app{padding-top:34px}.stage{min-height:650px}.screen{padding-top:56px;padding-bottom:56px}}
+    @media(max-width:390px){.app{padding-left:12px;padding-right:12px}.stage{min-height:calc(100svh - 105px)}.screen{padding:32px 18px;border-radius:23px}.screen::before{inset:7px}.eyebrow{margin-bottom:17px}.actions{margin-top:24px}.movie-choice{font-size:11px;min-height:96px}.date{font-size:clamp(31px,8vw,40px)}}
+    @media(max-height:720px){.app{justify-content:flex-start;padding-top:12px}.topline{margin-bottom:8px}.stage{min-height:auto}.screen{padding-top:28px;padding-bottom:28px}.eyebrow{margin-bottom:14px}.ornament{margin:18px auto}.actions{margin-top:20px}.copy{margin-top:14px}.progress-wrap{margin-top:12px}}
+    @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
+  </style>
+</head>
+<body>
+  <div class="ambient" aria-hidden="true">
+    <div class="orb one"></div><div class="orb two"></div><div class="grain"></div><div class="sparkles" id="sparkles"></div>
+  </div>
+  <main class="app">
+    <div class="topline">
+      <div class="seal"><span class="seal-mark">✦</span><span>Наше милое приключение</span></div>
+      <span class="step-label" id="stepLabel">01 / 08</span>
+    </div>
+
+    <div class="stage" id="stage">
+      <section class="screen active" id="screen-1" aria-label="Экран 1">
+        <p class="eyebrow">Солнышко, есть предложение</p>
+        <h1>Хочешь составить мне компанию и случайно влюбиться в этот волшебный вечер?</h1>
+        <div class="ornament">✧</div>
+        <div class="actions">
+          <button class="btn primary" type="button" onclick="goTo(2)">Да</button>
+          <button class="btn quiet" type="button" id="noButton">Нет</button>
+        </div>
+        <div class="no-message" id="noMessage" role="status">Что ж, очень жаль</div>
+      </section>
+
+      <section class="screen" id="screen-2" aria-label="Экран 2">
+        <button class="back-btn" type="button" onclick="goTo(1)">← Назад</button>
+        <p class="eyebrow">Последний шанс перед приключением</p>
+        <h2>А если этот вечер окажется особенным?</h2>
+        <p class="copy">Всё ещё готова рискнуть и проверить?</p>
+        <div class="ornament">♡</div>
+        <div class="actions"><button class="btn primary" type="button" onclick="heartBurst();goTo(3)">❤️Да Да Да❤️</button></div>
+      </section>
+
+      <section class="screen" id="screen-3" aria-label="Экран 3">
+        <button class="back-btn" type="button" onclick="goTo(2)">← Назад</button>
+        <p class="eyebrow">Волшебный день</p>
+        <div class="date">17.10.2026</div>
+        <div class="date-sub">А вечер только для нас</div>
+        <div class="ornament">✧ ✧ ✧</div>
+        <p class="copy">В этот день у нас запланировано маленькое исчезновение из повседневности ✨</p>
+        <div class="actions"><button class="btn primary" type="button" onclick="goTo(4)">Ух ты, что же дальше?</button></div>
+      </section>
+
+      <section class="screen" id="screen-4" aria-label="Экран 4">
+        <button class="back-btn" type="button" onclick="goTo(3)">← Назад</button>
+        <p class="eyebrow">Глава первая · маленькие удовольствия</p>
+        <h2>Сегодня можно всё!<br>Ну, почти всё😁</h2>
+        <p class="copy">Для начала выбери<br>что-нибудь вкусное🍱</p>
+        <label class="field-label" for="food">Твои гастрономические пожелания</label>
+        <textarea id="food" placeholder="Роллы, пицца, прочие радости на твой вкус" autocomplete="off"></textarea>
+        <div class="actions"><button class="btn primary" type="button" onclick="saveField('food');goTo(5)">Тык сюда</button></div>
+      </section>
+
+      <section class="screen" id="screen-5" aria-label="Экран 5">
+        <button class="back-btn" type="button" onclick="goTo(4)">← Назад</button>
+        <p class="eyebrow">Глава вторая · настроение</p>
+        <h2>Немного настроения в бокале 🍸</h2>
+        <p class="copy">Выбирай оттенок нашего вечера</p>
+        <div class="choices" id="drinkChoices" aria-label="Оттенок вечера">
+          <button type="button" class="choice" data-value="Нежный" aria-pressed="false">Нежный</button>
+          <button type="button" class="choice" data-value="Яркий" aria-pressed="false">Яркий</button>
+          <button type="button" class="choice" data-value="Игривый" aria-pressed="false">Игривый</button>
+        </div>
+        <label class="field-label" for="drinks">Какими напитками хочешь скрасить вечер?</label>
+        <textarea id="drinks" placeholder="Кофе, чай, вино, коктейли - никаких ограничений!" autocomplete="off"></textarea>
+        <div class="actions"><button class="btn primary" type="button" onclick="saveField('drinks');goTo(6)">Тык сюда</button></div>
+      </section>
+
+      <section class="screen" id="screen-6" aria-label="Экран 6">
+        <button class="back-btn" type="button" onclick="goTo(5)">← Назад</button>
+        <p class="eyebrow">Глава третья · волшебство</p>
+        <h2>Как будем хулиганить?</h2>
+        <p class="copy">В пределах приличия!<br>Ну, или почти 😏</p>
+        <label class="field-label" for="activities">Чем бы ты хотела заняться в этот вечер?</label>
+        <textarea id="activities" placeholder="Душевно поговорить, прогуляться, посмотреть фильм, массаж, слушать музыку, читать книгу – любые пожелания для лучшего вайба" autocomplete="off"></textarea>
+        <div class="actions"><button class="btn primary" type="button" onclick="saveField('activities');goTo(7)">Тык сюда</button></div>
+      </section>
+
+      <section class="screen" id="screen-7" aria-label="Экран 7">
+        <button class="back-btn" type="button" onclick="goTo(6)">← Назад</button>
+        <p class="eyebrow">Глава четвёртая · кино и мы</p>
+        <h2>Что заставит нас забыть о времени?</h2>
+        <p class="copy">Пусть кино расскажет свою историю, а мы напишем нашу</p>
+        <div class="movie-choices" id="movieChoices">
+          <button type="button" class="movie-choice" data-value="Захватывающий сюжет" aria-pressed="false"><span class="icon">✦</span><span>Захватывающий сюжет</span></button>
+          <button type="button" class="movie-choice" data-value="Искренний смех" aria-pressed="false"><span class="icon">☼</span><span>Искренний смех</span></button>
+          <button type="button" class="movie-choice" data-value="Нечто романтичное" aria-pressed="false"><span class="icon">♡</span><span>Нечто романтичное</span></button>
+        </div>
+        <label class="field-label" for="movie">Предложи жанр, фильм или книгу</label>
+        <textarea id="movie" placeholder="Если такие занятия нам не по душе, ставь минус" autocomplete="off"></textarea>
+        <div class="actions"><button class="btn primary" type="button" onclick="saveField('movie');goTo(8)">Тык сюда</button></div>
+      </section>
+
+      <section class="screen" id="screen-8" aria-label="Экран 8">
+        <button class="back-btn" type="button" onclick="goTo(7)">← Назад</button>
+        <p class="eyebrow">Итак, решено</p>
+        <div class="final-heart">❤</div>
+        <h1 class="final-title">Ну всё, Солнышко, ты попалась!</h1>
+        <p class="final-copy">Жди моего сообщения 17.10 <br>и готовь улыбку ☺️</p>
+        <p class="final-last">Остальное я беру на себя</p>
+        <div class="ornament">✧</div>
+        <p class="copy" style="font-size:13px;margin-top:0">Осталось только поделиться своими пожеланиями — чтобы вечер получился именно таким, как тебе хочется</p>
+        <div class="actions"><button class="btn primary" id="submitButton" type="button" onclick="sendAnswers()">Отправить мои пожелания ❤️</button></div>
+        <div class="send-status" id="sendStatus" role="status" aria-live="polite"></div>
+        <p class="fineprint">Ответы нужны только для подготовки нашего вечера.</p>
+      </section>
+    </div>
+
+    <div class="progress-wrap" id="progress" aria-label="Прогресс приглашения"></div>
+    <div class="bottom-note">СОЗДАНО С МЫСЛЬЮ О ТЕБЕ</div>
+  </main>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    // Вставь URL опубликованного Google Apps Script, оканчивающийся на /exec.
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwzSLQPKVdQVwx2yw_MF20xtwSyrFucXaW3BTLCDccKmbw_ErHmH0XCMhusoLktabXJgw/exec";
+
+    const STORAGE_KEY = "dateInvitationAnswers_v1";
+    const answers = {
+      food: "",
+      drinks: "",
+      drinkMood: [],
+      activities: "",
+      movie: "",
+      movieGenres: [],
+      extra: ""
+    };
+
+    let currentScreen = 1;
+    let isSending = false;
+    let toastTimer;
+
+    function loadAnswers() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+        Object.assign(answers, saved);
+      } catch (error) {
+        console.warn("Не удалось прочитать сохранённые ответы.", error);
+      }
+      ["food", "drinks", "activities", "movie"].forEach((key) => {
+        const field = document.getElementById(key);
+        if (field) field.value = answers[key] || "";
+      });
+      syncChoices("drinkChoices", answers.drinkMood || []);
+      syncChoices("movieChoices", answers.movieGenres || []);
+    }
+
+    function persistAnswers() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(answers));
+      } catch (error) {
+        console.warn("Не удалось сохранить ответы в этом браузере.", error);
+      }
+    }
+
+    function saveField(key) {
+      const field = document.getElementById(key);
+      if (field) answers[key] = field.value.trim();
+      persistAnswers();
+    }
+
+    function syncChoices(containerId, selectedValues) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      container.querySelectorAll("[data-value]").forEach((button) => {
+        const selected = selectedValues.includes(button.dataset.value);
+        button.classList.toggle("selected", selected);
+        button.setAttribute("aria-pressed", String(selected));
+      });
+    }
+
+    function toggleChoice(containerId, stateKey, value) {
+      const values = new Set(answers[stateKey] || []);
+      if (values.has(value)) values.delete(value);
+      else values.add(value);
+      answers[stateKey] = Array.from(values);
+      syncChoices(containerId, answers[stateKey]);
+      persistAnswers();
+    }
+
+    document.getElementById("drinkChoices").addEventListener("click", (event) => {
+      const button = event.target.closest("[data-value]");
+      if (button) toggleChoice("drinkChoices", "drinkMood", button.dataset.value);
+    });
+
+    document.getElementById("movieChoices").addEventListener("click", (event) => {
+      const button = event.target.closest("[data-value]");
+      if (button) toggleChoice("movieChoices", "movieGenres", button.dataset.value);
+    });
+
+    ["food", "drinks", "activities", "movie"].forEach((key) => {
+      document.getElementById(key).addEventListener("input", (event) => {
+        answers[key] = event.target.value;
+        persistAnswers();
+      });
+    });
+
+    function buildProgress() {
+      const progress = document.getElementById("progress");
+      for (let i = 1; i <= 8; i++) {
+        const dot = document.createElement("span");
+        dot.className = "progress-dot";
+        dot.dataset.step = String(i);
+        progress.appendChild(dot);
+      }
+      updateProgress();
+    }
+
+    function updateProgress() {
+      document.getElementById("stepLabel").textContent =
+        String(currentScreen).padStart(2, "0") + " / 08";
+      document.querySelectorAll(".progress-dot").forEach((dot) => {
+        dot.classList.toggle("done", Number(dot.dataset.step) <= currentScreen);
+      });
+    }
+
+    function goTo(number) {
+      if (number < 1 || number > 8 || number === currentScreen) return;
+      const oldScreen = document.getElementById(`screen-${currentScreen}`);
+      const nextScreen = document.getElementById(`screen-${number}`);
+      oldScreen.classList.remove("active");
+      oldScreen.classList.add("leaving");
+      window.setTimeout(() => oldScreen.classList.remove("leaving"), 220);
+      nextScreen.classList.add("active");
+      currentScreen = number;
+      updateProgress();
+      window.scrollTo({ top: 0, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+      if (number === 8) heartBurst(4);
+    }
+
+    document.getElementById("noButton").addEventListener("click", () => {
+      const message = document.getElementById("noMessage");
+      message.classList.remove("show");
+      void message.offsetWidth;
+      message.classList.add("show");
+    });
+
+    function heartBurst(count = 8) {
+      const symbols = ["♡", "❤", "♥"];
+      for (let i = 0; i < count; i++) {
+        const heart = document.createElement("span");
+        heart.className = "heart-float";
+        heart.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+        heart.style.left = (35 + Math.random() * 30) + "vw";
+        heart.style.top = (48 + Math.random() * 15) + "vh";
+        heart.style.color = Math.random() > .5 ? "#d77c8e" : "#d7b58b";
+        heart.style.animationDelay = (Math.random() * .25) + "s";
+        document.body.appendChild(heart);
+        window.setTimeout(() => heart.remove(), 2300);
+      }
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+      toast.textContent = message;
+      toast.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = window.setTimeout(() => toast.classList.remove("show"), 3500);
+    }
+
+    function makePayload() {
+      return {
+        food: answers.food || "",
+        drinks: [
+          answers.drinks || "",
+          answers.drinkMood && answers.drinkMood.length
+            ? "Оттенки вечера: " + answers.drinkMood.join(", ")
+            : ""
+        ].filter(Boolean).join("\n"),
+        activities: answers.activities || "",
+        movie: [
+          answers.movieGenres && answers.movieGenres.length
+            ? "Выбранные варианты: " + answers.movieGenres.join(", ")
+            : "",
+          answers.movie || ""
+        ].filter(Boolean).join("\n"),
+        extra: answers.extra || ""
+      };
+    }
+
+    async function sendAnswers() {
+      if (isSending) return;
+      if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes("ВСТАВЬ_URL")) {
+        showToast("Сначала добавь URL Google Apps Script в index.html.");
+        return;
+      }
+
+      saveField("food");
+      saveField("drinks");
+      saveField("activities");
+      saveField("movie");
+      const payloadData = makePayload();
+      const button = document.getElementById("submitButton");
+      const status = document.getElementById("sendStatus");
+      isSending = true;
+      button.disabled = true;
+      button.textContent = "Отправляем…";
+      status.classList.remove("show");
+      status.textContent = "";
+
+      try {
+        const body = new URLSearchParams({
+          payload: JSON.stringify(payloadData)
+        });
+
+        // no-cors не позволяет прочитать ответ сервера:
+        // это означает, что браузер не может подтвердить сохранение ответа.
+        await fetch(GOOGLE_SCRIPT_URL, {
+          method: "POST",
+          mode: "no-cors",
+          body
+        });
+
+        status.textContent = "Запрос отправлен. Спасибо за твои пожелания, Солнышко ❤️ ";
+        status.classList.add("show");
+        button.textContent = "Запрос отправлен";
+        // Не удаляем локальный черновик: ответ сервера недоступен в режиме no-cors.
+      } catch (error) {
+        console.error("Ошибка отправки:", error);
+        status.textContent = "Не удалось отправить запрос из-за ошибки сети. Твои ответы сохранены на этом устройстве — попробуй ещё раз.";
+        status.classList.add("show");
+        button.disabled = false;
+        button.textContent = "Повторить отправку ❤️";
+      } finally {
+        isSending = false;
+      }
+    }
+
+    function createSparkles() {
+      const container = document.getElementById("sparkles");
+      for (let i = 0; i < 34; i++) {
+        const spark = document.createElement("span");
+        spark.className = "spark";
+        spark.style.left = (Math.random() * 100) + "%";
+        spark.style.top = (Math.random() * 100) + "%";
+        spark.style.animationDelay = (Math.random() * 5) + "s";
+        spark.style.animationDuration = (3 + Math.random() * 5) + "s";
+        container.appendChild(spark);
+      }
+    }
+
+    buildProgress();
+    loadAnswers();
+    createSparkles();
+  </script>
+</body>
+</html>
